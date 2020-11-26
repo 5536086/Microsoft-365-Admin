@@ -224,7 +224,7 @@ public class Microsoft365Controller {
         if (graphProperties.getConfig(appName) == null) {
             return BaseResultVo.error("组织类型不存在！");
         }
-        return BaseResultVo.success(microsoft365Service.addLicense(appName, userId, skuId));
+        return BaseResultVo.success(microsoft365Service.addLicense(appName, userId.trim(), skuId));
     }
 
     /**
@@ -240,7 +240,7 @@ public class Microsoft365Controller {
         if (graphProperties.getConfig(appName) == null) {
             return BaseResultVo.error("组织类型不存在！");
         }
-        return BaseResultVo.success(microsoft365Service.cancelLicense(appName, userId, skuId));
+        return BaseResultVo.success(microsoft365Service.cancelLicense(appName, userId.trim(), skuId));
     }
 
     /**
@@ -256,7 +256,7 @@ public class Microsoft365Controller {
         if (graphProperties.getConfig(appName) == null) {
             return BaseResultVo.error("组织类型不存在！");
         }
-        microsoft365Service.enableDisableUser(appName, userId, accountEnabled);
+        microsoft365Service.enableDisableUser(appName, userId.trim(), accountEnabled);
         return BaseResultVo.success();
     }
 
@@ -291,26 +291,14 @@ public class Microsoft365Controller {
      * @return 成功
      */
     @GetMapping("/createUserBatch")
-    public BaseResultVo createUserBatch(String appName, Integer num, String skuId, String domain) {
+    public BaseResultVo createUserBatch(String appName, Integer num, String skuId, String domain, String password) {
         if (num == null || StringUtils.isBlank(appName) || StringUtils.isBlank(domain)) {
             return BaseResultVo.error("参数为空！");
         }
         if (graphProperties.getConfig(appName) == null) {
             return BaseResultVo.error("组织类型不存在！");
         }
-        if (num > NUM) {
-            for (int i = 0; i < num / NUM; i++) {
-
-                microsoft365Service.createBatch(NUM, appName, "china", skuId, domain);
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            microsoft365Service.createBatch(num, appName, "china", skuId, domain);
-        }
+        microsoft365Service.createBatch(num, appName, skuId, domain, password);
         return BaseResultVo.success();
     }
 

@@ -1,10 +1,9 @@
-
-var path = url + "/microsoft/365";
+var path = url + "/microsoft";
 var appNameList;
 $.ajax({
     type: "get",
     async: false,
-    url: path + "/getAppName",
+    url: path + "/365/getAppName",
     data: {},
     dataType: "json",
     success: function (r) {
@@ -14,9 +13,15 @@ $.ajax({
             appNameList = r.data;
         }
     },
-    error: function () {
-        /*错误信息处理*/
-        lightyear.notify("服务器错误，请稍后再试~", 'danger', 100);
+    error: function (r) {
+        console.log(r)
+        if (r.status === 401) {
+            lightyear.notify(r.message, 'error', 200);
+            window.location.href = "login.html";
+        } else {
+            /*错误信息处理*/
+            lightyear.notify("服务器错误，请稍后再试~", 'danger', 100);
+        }
     }
 });
 
@@ -24,7 +29,7 @@ function refreshCache() {
     lightyear.loading('show');
     $.ajax({
         type: "get",
-        url: path + "/refresh",
+        url: path + "/365/refresh",
         data: {
             "appName": getAppName()
         },

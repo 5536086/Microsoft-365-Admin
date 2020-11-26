@@ -43,7 +43,7 @@ var getParam = function () {
 function getUsersStatistics() {
     $.ajax({
         type: "get",
-        url: path + "/getUsersStatistics",
+        url: path + "/365/getUsersStatistics",
         data: {
             "appName": getAppName()
         },
@@ -77,7 +77,7 @@ function listUsers(obj) {
     }
     $.ajax({
         type: "get",
-        url: path + "/listUsers",
+        url: path + "/365/listUsers",
         data: {
             "pageIndex": pageIndex,
             "pageSize": 10,
@@ -137,7 +137,7 @@ function listUsers(obj) {
 function listLicense() {
     $.ajax({
         type: "get",
-        url: path + "/listLicense",
+        url: path + "/365/listLicense",
         data: {
             "appName": getAppName()
         },
@@ -162,7 +162,7 @@ function listLicense() {
 function listDomain() {
     $.ajax({
         type: "get",
-        url: path + "/getDomains",
+        url: path + "/365/getDomains",
         data: {
             "appName": getAppName()
         },
@@ -204,37 +204,41 @@ function addUserClick() {
     let mailNickname = getInput("#addMailNickname");
     let domain = getSelect("#addDomainSelect");
     let password = getInput("#addPassword");
+    let mailbox = getInput("#addMail");
     // 参数校验
 
 
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/addUser",
+        url: path + "/365/addUser",
         data: {
             "appName": getAppName(),
             "displayName": displayName,
             "skuId": skuId,
             "mailNickname": mailNickname,
             "domain": domain,
-            "password": password
+            "password": password,
+            "mailbox": mailbox
         },
         dataType: "json",
         success: function (r) {
             if (r.status !== 200) {
+                lightyear.loading('hide');
                 lightyear.notify(r.message, 'danger', delay);
             } else {
                 console.log(r);
                 let userInfo = '名称：' + r.data.displayName + '<br>账号：' + r.data.userPrincipalName + '<br>密码：' + r.data.password;
                 lightyear.loading('hide');
                 $.alert({
-                    title: '添加成功',
+                    title: '添加成功；请刷新缓存！',
                     content: '新增账号成功：<br><br><strong>' + userInfo + '</strong><br><br>',
                     buttons: {
                         confirm: {
                             text: '确认',
                             btnClass: 'btn-primary',
                             action: function () {
+                                window.location.reload();
                             }
                         }
                     }
@@ -257,7 +261,7 @@ function addLicenseClick() {
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/addLicense",
+        url: path + "/365/addLicense",
         data: {
             "appName": getAppName(),
             "userId": userId,
@@ -288,7 +292,7 @@ function cancelLicenseClick() {
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/cancelLicense",
+        url: path + "/365/cancelLicense",
         data: {
             "appName": getAppName(),
             "userId": userId
@@ -316,7 +320,7 @@ function enableUserClick(userId) {
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/enableDisableUser",
+        url: path + "/365/enableDisableUser",
         data: {
             "appName": getAppName(),
             "userId": userId,
@@ -345,7 +349,7 @@ function disableUserClick(userId) {
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/enableDisableUser",
+        url: path + "/365/enableDisableUser",
         data: {
             "appName": getAppName(),
             "userId": userId,
@@ -374,7 +378,7 @@ function deletedUserClick(userId) {
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/deletedUser",
+        url: path + "/365/deletedUser",
         data: {
             "appName": getAppName(),
             "userId": userId
@@ -401,17 +405,19 @@ function deletedUserClick(userId) {
 function addUserBatchClick() {
     lightyear.loading('show');
     let num = $("#addUserBatchNum").val();
+    let password = getInput("#passwordSelectModalBatch");
     let skuId = getSelect("#licenseSelectModalBatch");
     let domain = getSelect("#domainSelectModalBatch");
     // 提交请求
     $.ajax({
         type: "get",
-        url: path + "/createUserBatch",
+        url: path + "/365/createUserBatch",
         data: {
             "appName": getAppName(),
             "num": num,
             "skuId": skuId,
-            "domain": domain
+            "domain": domain,
+            "password":password
         },
         dataType: "json",
         success: function (r) {
@@ -421,7 +427,7 @@ function addUserBatchClick() {
             } else {
                 console.log(r);
                 lightyear.loading('hide');
-                lightyear.notify('正在创建账户中，请等待！', 'success', delay);
+                lightyear.notify('正在创建账户中，请等待！请根据根据创建数量比例等待，刷新界面', 'success', delay);
             }
         },
         error: function () {
@@ -436,7 +442,7 @@ function deletedUserBatchClick() {
     // 提交请求
     $.ajax({
         type: "post",
-        url: path + "/deletedUserBatch",
+        url: path + "/365/deletedUserBatch",
         data: {
             "appName": getAppName()
         },
@@ -475,8 +481,14 @@ function setDomain(id) {
     $("#" + id).empty();
     $("#" + id).append("<option value=\"\" disabled selected hidden>请选择域名后缀</option>");
     for (i in domainList) {
-        let option = "<option value=" + domainList[i].id + ">" + domainList[i].id + "</option>";
-        $("#" + id).append(option);
+        console.log(domainList[i].isDefault)
+        if (domainList[i].isDefault) {
+            let option = "<option selected='selected' value=" + domainList[i].id + ">" + domainList[i].id + "</option>";
+            $("#" + id).append(option);
+        } else {
+            let option = "<option value=" + domainList[i].id + ">" + domainList[i].id + "</option>";
+            $("#" + id).append(option);
+        }
     }
 }
 

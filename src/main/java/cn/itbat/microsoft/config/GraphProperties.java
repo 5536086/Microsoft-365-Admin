@@ -16,9 +16,14 @@ import java.util.List;
 public class GraphProperties {
 
     /**
-     * 缓存方式
+     * 用户名
      */
-    private String cache;
+    private String userName;
+
+    /**
+     * 密码
+     */
+    private String password;
 
     /**
      * 小程序配置
