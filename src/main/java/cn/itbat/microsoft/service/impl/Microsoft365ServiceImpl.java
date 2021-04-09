@@ -47,8 +47,6 @@ import java.util.stream.Collectors;
 @Service("microsoft365Service")
 public class Microsoft365ServiceImpl implements Microsoft365Service {
 
-    private static final String CHINA = "china";
-
     @Resource
     private GraphService graphService;
 
@@ -158,7 +156,7 @@ public class Microsoft365ServiceImpl implements Microsoft365Service {
         } else {
             users = graphService.getUsers(graphUserVo);
         }
-        users = users.stream().filter(l -> !l.userPrincipalName.contains("admin")).collect(Collectors.toList());
+//        users = users.stream().filter(l -> !l.userPrincipalName.contains("admin")).collect(Collectors.toList());
         // 判断是启用禁用的情况
         if (graphUserVo.getAccountEnabled() != null) {
             users = users.stream().filter(l -> l.accountEnabled.equals(graphUserVo.getAccountEnabled())).collect(Collectors.toList());
@@ -293,6 +291,7 @@ public class Microsoft365ServiceImpl implements Microsoft365Service {
         log.info("【Office】组织：" + appName + " 删除用户成功：" + userName);
     }
 
+    @Async("asyncPoolTaskExecutor")
     @Override
     public void deletedUsers(String appName) {
         List<User> users = graphService.getUsers(appName);
@@ -310,6 +309,7 @@ public class Microsoft365ServiceImpl implements Microsoft365Service {
                 log.error("【Office】删除用户失败：" + user.userPrincipalName);
             }
         }
+        graphCache.refreshUsers(appName);
     }
 
 
@@ -346,6 +346,7 @@ public class Microsoft365ServiceImpl implements Microsoft365Service {
                 // 将创建的用户删除，如果是订阅分配失败的话
             }
         }
+        graphCache.refreshUsers(appName);
     }
 
 
